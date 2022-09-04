@@ -31,6 +31,7 @@ class Application():
         self.pieces_placed = 0
         self.positioning_piece = False
         self.my_turn = None
+        self.opponent_has_moved = False
         
         self.state_functions = {States.JOIN_GAME : self.join_game,
                                 States.WAITING_OPPONENT : self.waiting_opponent,
@@ -46,6 +47,12 @@ class Application():
     def parse_your_turn(self):
         json_payload = {'msg_type' : 'your turn',
                         'payload' : ''}
+        
+        return json.dumps(json_payload)
+    
+    def parse_move_piece_command(self,piece, position):
+        json_payload = {'msg_type' : 'move piece',
+                        'payload' : {'piece' : piece, 'position' : position}}
         
         return json.dumps(json_payload)
     
@@ -83,37 +90,43 @@ class Application():
             
         else:
             self.gui_controller.set_aid_label_message("Turno do Oponente")
-            
+        
+        self.is_moving_piece = True
+        self.piece_position = None
+        self.piece_selected = None
         self.state = States.PREPARE_PIECES
+        
+    def move_piece_command(self,piece,position):
+        self.comm_driver.send_message(self.parse_move_piece_command(piece, position))
         
     def prepare_pieces(self):
         
-        self.mouse_position = None
-        self.piece_selected = None
-        self.is_moving_piece = None
-        
         if self.my_turn == False:
-            return
-        
-        if self.pieces_placed >= 9:
-            self.mouse_position = None
+            self.piece_position = None
             self.piece_selected = None
             return
         
-        self.is_moving_piece = True
+        if self.pieces_placed >= 9:
+            self.piece_position = None
+            self.piece_selected = None
+            return
         
-        while self.is_moving_piece == True:
-            if self.mouse_position != None:
-                self.gui_controller.move_piece(self.piece_selected, self.mouse_position)
-                self.mouse_position = None
-        
+        if self.is_moving_piece == True:
+            if self.piece_position != None:
+                self.gui_controller.move_piece(self.piece_selected, self.piece_position)
+                self.move_piece_command(self.piece_selected, self.piece_position)
+                self.piece_position = None
+            
+            return
+                
         self.gui_controller.set_piece_clickable(self.piece_selected, False)
         self.my_turn = False
+        self.is_moving_piece = True
         self.gui_controller.set_aid_label_message("Turno do Oponente")
         self.change_turn()
         
         self.pieces_placed += 1
-    
+        
     def send_chat_message(self,message):
         self.comm_driver.send_message(self.parse_send_chat_msg(message))
         
@@ -140,6 +153,11 @@ class Application():
         elif payload_json['msg_type'] == 'your turn':
             self.gui_controller.set_aid_label_message("Seu Turno")
             self.my_turn = True
+            
+        elif payload_json['msg_type'] == 'move piece':
+            self.opponent_has_moved = True
+            self.gui_controller.move_opponent_piece(payload_json['payload']['piece'],payload_json['payload']['position'])
+            
         
     def start(self):
         thread = threading.Thread(target=self.run,args=())
@@ -175,6 +193,7 @@ class GUI_CMD():
     MOVE_PIECE = auto()
     EN_DIS_PIECE = auto()
     AID_LABEL = auto()
+    MOVE_OPPONENT_PIECE = auto()
 
 class GUI_Controller(QtCore.QObject):
     '''Sinais que comunicam com a thread da GUI'''
@@ -219,85 +238,7 @@ class GUI_Controller(QtCore.QObject):
         command = [GUI_CMD.EN_DIS_PIECE,piece,clickable]
         self.widget_signal.emit(command)
         
-    '''def set_gui_frame_off(self):
-        command = [GUI_CMD.SET_GUI_FRAME_OFF]
+    def move_opponent_piece(self,piece,position):
+        command = [GUI_CMD.MOVE_OPPONENT_PIECE,piece,position]
         self.widget_signal.emit(command)
-    
-    def set_gui_frame_on(self):
-        command = [GUI_CMD.SET_GUI_FRAME_ON]
-        self.widget_signal.emit(command)
-        
-    def append_error_to_log(self,message):
-        command=[GUI_CMD.APPEND_TO_LOG,message,"red"]
-        self.widget_signal.emit(command)
-        
-    def append_success_to_log(self,message):
-        command=[GUI_CMD.APPEND_TO_LOG,message,"green"]
-        self.widget_signal.emit(command)
-        
-    def append_to_log(self,message):
-        command=[GUI_CMD.APPEND_TO_LOG,message,"white"]
-        self.widget_signal.emit(command)
-        
-    def set_frame_red(self):
-        command=[GUI_CMD.SET_FRAME_COLOR,Macros.WIDGET_RED_COLOR]
-        self.widget_signal.emit(command)
-        
-    def set_frame_green(self):
-        command=[GUI_CMD.SET_FRAME_COLOR,Macros.WIDGET_GREEN_COLOR]
-        self.widget_signal.emit(command)
-        
-    def set_frame_running_stage(self):
-        command=[GUI_CMD.SET_FRAME_COLOR,Macros.WIDGET_CURRENT_COLOR]
-        self.widget_signal.emit(command)
-        
-    def set_gui_status_label(self,message,screen_page):
-        command=[GUI_CMD.SET_GUI_STATUS_LABEL,message,screen_page]
-        self.widget_signal.emit(command)
-        
-    def set_widget_current_stage(self,stage,screen_page):
-        command=[GUI_CMD.SET_WIDGET_COLOR,Macros.WIDGET_CURRENT_COLOR,screen_page,stage]
-        self.widget_signal.emit(command)
-        
-    def set_widget_status(self,stage,screen_page, status: bool):
-        if status == True:
-            self.set_widget_green(stage,screen_page)
-        
-        else:
-            self.set_widget_red(stage,screen_page)
-        
-    def set_widget_red(self,stage,screen_page):
-        command=[GUI_CMD.SET_WIDGET_COLOR,Macros.WIDGET_RED_COLOR,screen_page,stage]
-        self.widget_signal.emit(command)
-        
-    def set_widget_green(self,stage,screen_page):
-        command=[GUI_CMD.SET_WIDGET_COLOR,Macros.WIDGET_GREEN_COLOR,screen_page,stage]
-        self.widget_signal.emit(command)
-        
-    def set_deveui_label(self,deveui):
-        command=[GUI_CMD.SET_DEVEUI_LABEL,deveui]
-        self.widget_signal.emit(command)
-        
-    def clear_qr_code_label(self):
-        command=[GUI_CMD.CLEAR_QR_CODE_LABEL]
-        self.widget_signal.emit(command)
-        
-    def set_script_running_blink(self,state):
-        
-        if state == True:
-            command = [GUI_CMD.SCRIPT_LABEL_BLINK_ON]
-            
-        else:
-            command = [GUI_CMD.SCRIPT_LABEL_BLINK_OFF]
-        
-        self.widget_signal.emit(command)
-        
-    def launch_qr_code_popup(self):
-        command=[GUI_CMD.LAUNCH_QRCODE_POPUP]
-        self.widget_signal.emit(command)
-        
-    def set_rssi_value(self, rssi_value: str):
-        command=[GUI_CMD.SET_RSSI_VALUE,rssi_value]
-        self.widget_signal.emit(command)'''
-    
         

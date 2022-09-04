@@ -82,6 +82,8 @@ class Server:
             print("Failed to send message: %s" % str(e))
             
 class Client:
+    
+    peers = []
             
     def __init__(self, address):
         self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -109,6 +111,7 @@ class Client:
                 self.input_payload.append(str(data,'utf-8'))
     def updatePeers(self,peerData):
         p2p.peers = str(peerData,"utf-8").split(",")[:-1]
+        self.peers = p2p.peers
         
     def send_message(self,data):
        #while True:
@@ -127,8 +130,7 @@ class Communication:
         self.handler = None
         
     def opponent_has_connected(self):
-        print(p2p.peers)
-        return True if len(p2p.peers) > 1 else False
+        return True if len(self.handler.peers) > 0 else False
         
     def send_message(self,data):
         iThread = threading.Thread(target=self.handler.send_message,args=(data,))

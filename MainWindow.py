@@ -58,7 +58,7 @@ class MainWindow(QtWidgets.QMainWindow,Ui_MainWindow,QtCore.QObject):
         self.your_pieces = [self.your_pieces_1,self.your_pieces_2,self.your_pieces_3,self.your_pieces_4,self.your_pieces_5,self.your_pieces_6,self.your_pieces_7,self.your_pieces_8,self.your_pieces_9]
         
         for piece in self.your_pieces:
-            piece.clicked.connect(partial(self.select_piece,piece))
+            piece.clicked.connect(partial(self.select_piece,self.your_pieces.index(piece)))
         
         self.init_screen()
         
@@ -92,14 +92,28 @@ class MainWindow(QtWidgets.QMainWindow,Ui_MainWindow,QtCore.QObject):
         if parameters[0]==GUI_CMD.AID_LABEL:
             self.status_label.setText(parameters[1])
             
+        if parameters[0]==GUI_CMD.MOVE_OPPONENT_PIECE:
+            self.move_opponent_piece(parameters[1],parameters[2])
+            
 # Game logics
-    def set_piece_clickable(self,piece,clickable):
-        piece.setEnabled(clickable)
+    def set_piece_clickable(self,piece_index,clickable):
+        self.your_pieces[piece_index].setEnabled(clickable)
 
-    def select_piece(self, piece):
-        self.application.piece_selected = piece
+    def select_piece(self, piece_index):
+        self.application.piece_selected = piece_index
         
-    def move_piece(self,piece,position):
+    def move_opponent_piece(self,piece_index, position_index):
+        position = self.piece_positions[position_index]
+        self.opponent_pieces[piece_index].move(position[0],position[1])
+        self.opponent_pieces[piece_index].show()
+        
+    def move_piece(self,piece_index,position):
+        self.your_pieces[piece_index].move(self.piece_positions[position][0],self.piece_positions[position][1])
+        self.application.is_moving_piece = False
+    
+    def positioning_piece(self, position):
+        if self.application.piece_selected == None:
+            return
         
         max_distance = 15
         
@@ -109,14 +123,7 @@ class MainWindow(QtWidgets.QMainWindow,Ui_MainWindow,QtCore.QObject):
         print(distance_between_points)
         
         if distance_between_points <= max_distance:
-            piece.move(new_position[0],new_position[1])
-            self.application.is_moving_piece = False
-    
-    def positioning_piece(self, position):
-        if self.application.piece_selected == None:
-            return
-        
-        self.application.mouse_position = (position.x()-10,position.y()+65)
+            self.application.piece_position = self.piece_positions.index(new_position)
 
     def append_chat_msg(self,message):
         self.chat_output.append(message)
@@ -136,7 +143,7 @@ class MainWindow(QtWidgets.QMainWindow,Ui_MainWindow,QtCore.QObject):
         
     def handle_mouse_event(self,e):
         if self.application.state == States.PREPARE_PIECES:
-            self.positioning_piece(e.pos())
+            self.positioning_piece((e.x()-10,e.y()+65))
             
     def eventFilter(self, source, event):
         
