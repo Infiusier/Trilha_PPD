@@ -271,6 +271,13 @@ class Ui_MainWindow(object):
         self.opponent_9.setGeometry(QRect(780, 630, 60, 60))
         self.opponent_9.setStyleSheet(u"background-color: rgb(61, 61, 61);\n"
 "border-radius: 30px;")
+        self.status_label = QLabel(self.frame)
+        self.status_label.setObjectName(u"status_label")
+        self.status_label.setGeometry(QRect(590, 100, 231, 31))
+        font4 = QFont()
+        font4.setFamily(u"Cubic")
+        font4.setPointSize(12)
+        self.status_label.setFont(font4)
         self.chat_frame.raise_()
         self.label.raise_()
         self.frame_3.raise_()
@@ -294,6 +301,7 @@ class Ui_MainWindow(object):
         self.opponent_7.raise_()
         self.opponent_8.raise_()
         self.opponent_9.raise_()
+        self.status_label.raise_()
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QWidget()
         self.page_2.setObjectName(u"page_2")
@@ -340,5 +348,6 @@ class Ui_MainWindow(object):
         self.opponent_7.setText("")
         self.opponent_8.setText("")
         self.opponent_9.setText("")
+        self.status_label.setText(QCoreApplication.translate("MainWindow", u"Sua vez", None))
     # retranslateUi
 

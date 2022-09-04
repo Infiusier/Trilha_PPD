@@ -670,6 +670,25 @@ border-radius: 30px;</string>
         <string/>
        </property>
       </widget>
+      <widget class="QLabel" name="status_label">
+       <property name="geometry">
+        <rect>
+         <x>590</x>
+         <y>100</y>
+         <width>231</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Cubic</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Sua vez</string>
+       </property>
+      </widget>
       <zorder>chat_frame</zorder>
       <zorder>label</zorder>
       <zorder>frame_3</zorder>
@@ -693,6 +712,7 @@ border-radius: 30px;</string>
       <zorder>opponent_7</zorder>
       <zorder>opponent_8</zorder>
       <zorder>opponent_9</zorder>
+      <zorder>status_label</zorder>
      </widget>
     </widget>
     <widget class="QWidget" name="page_2">

@@ -1,8 +1,5 @@
 # coding: utf-8
 import time,threading,os,json
-from datetime import datetime
-from intelhex import IntelHex
-from queue import Queue
 from enum import Enum,auto
 
 from PySide2.QtCore import QThread
@@ -14,6 +11,8 @@ DEBUG = 1
 
 class States():
     JOIN_GAME = auto()
+    WAITING_OPPONENT = auto()
+    PREPARE_PIECES_GUI = auto()
     PREPARE_PIECES =auto()
     FINALIZED = auto()
     
@@ -31,22 +30,27 @@ class Application():
         self.state = States.JOIN_GAME
         self.pieces_placed = 0
         self.positioning_piece = False
+        self.my_turn = None
         
         self.state_functions = {States.JOIN_GAME : self.join_game,
+                                States.WAITING_OPPONENT : self.waiting_opponent,
+                                States.PREPARE_PIECES_GUI : self.prepare_pieces_gui,
                                 States.PREPARE_PIECES : self.prepare_pieces}
-        
-        '''self.state_functions = {States.FLASH_FIRMWARE : self.flash_firmware_stage,
-                                States.EXECUTE_SCRIPT : self.execute_script_stage,
-                                States.VALIDATE : self.validate_factory_stage,
-                                States.FLASH_PROD_FIRMWARE : self.flash_prod_firmware_stage,
-                                States.MEMORY_LOCK : self.memory_lock_stage,
-                                States.FINAL : self.final_function}'''
 
-    def parse_output_payload(self,message):
+    def parse_send_chat_msg(self,message):
         json_payload = {'msg_type' : 'chat msg',
                         'payload' : message}
         
         return json.dumps(json_payload)
+    
+    def parse_your_turn(self):
+        json_payload = {'msg_type' : 'your turn',
+                        'payload' : ''}
+        
+        return json.dumps(json_payload)
+    
+    def change_turn(self):
+        self.comm_driver.send_message(self.parse_your_turn())
         
     def join_game(self):
         if self.comm_driver.is_connected == False:
@@ -61,12 +65,32 @@ class Application():
             self.my_turn = False
             
         self.gui_controller.show_pieces()
+        self.gui_controller.set_status_message("Aguardando Oponente")
+        self.state = States.WAITING_OPPONENT
+        
+    def waiting_opponent(self):
+        
+        if self.comm_driver.opponent_has_connected() == False:
+            return
+        
+        self.state = States.PREPARE_PIECES_GUI
+        
+    def prepare_pieces_gui(self):
+        self.gui_controller.set_status_message("Fase de alocação de Peças")
+        
+        if self.my_turn == True:
+            self.gui_controller.set_aid_label_message("Seu Turno")
+            
+        else:
+            self.gui_controller.set_aid_label_message("Turno do Oponente")
+            
         self.state = States.PREPARE_PIECES
         
     def prepare_pieces(self):
         
         self.mouse_position = None
         self.piece_selected = None
+        self.is_moving_piece = None
         
         if self.my_turn == False:
             return
@@ -76,14 +100,22 @@ class Application():
             self.piece_selected = None
             return
         
-        while self.mouse_position == None:
-            pass
+        self.is_moving_piece = True
         
-        self.gui_controller.move_piece(self.piece_selected, self.mouse_position)
+        while self.is_moving_piece == True:
+            if self.mouse_position != None:
+                self.gui_controller.move_piece(self.piece_selected, self.mouse_position)
+                self.mouse_position = None
+        
+        self.gui_controller.set_piece_clickable(self.piece_selected, False)
+        self.my_turn = False
+        self.gui_controller.set_aid_label_message("Turno do Oponente")
+        self.change_turn()
+        
         self.pieces_placed += 1
     
     def send_chat_message(self,message):
-        self.comm_driver.send_message(self.parse_output_payload(message))
+        self.comm_driver.send_message(self.parse_send_chat_msg(message))
         
     def get_chat_message(self,message):
         msg = "Oponente: %s" % message
@@ -102,9 +134,12 @@ class Application():
         
         payload_json = json.loads(payload)
         
-        if payload_json['msg_type'] == Protocol.CHAT_MSG:
+        if payload_json['msg_type'] == 'chat msg':
             self.get_chat_message(payload_json['payload'])
         
+        elif payload_json['msg_type'] == 'your turn':
+            self.gui_controller.set_aid_label_message("Seu Turno")
+            self.my_turn = True
         
     def start(self):
         thread = threading.Thread(target=self.run,args=())
@@ -138,6 +173,8 @@ class GUI_CMD():
     SWITCH_COLOR = auto()
     SHOW_PIECES = auto()
     MOVE_PIECE = auto()
+    EN_DIS_PIECE = auto()
+    AID_LABEL = auto()
 
 class GUI_Controller(QtCore.QObject):
     '''Sinais que comunicam com a thread da GUI'''
@@ -162,6 +199,10 @@ class GUI_Controller(QtCore.QObject):
         command = [GUI_CMD.STATUS_MSG,message]
         self.widget_signal.emit(command)
         
+    def set_aid_label_message(self,message):
+        command = [GUI_CMD.AID_LABEL,message]
+        self.widget_signal.emit(command)
+        
     def switch_piece_colors(self):
         command = [GUI_CMD.SWITCH_COLOR]
         self.widget_signal.emit(command)
@@ -172,6 +213,10 @@ class GUI_Controller(QtCore.QObject):
         
     def move_piece(self,piece,position):
         command = [GUI_CMD.MOVE_PIECE,piece,position]
+        self.widget_signal.emit(command)
+        
+    def set_piece_clickable(self,piece,clickable):
+        command = [GUI_CMD.EN_DIS_PIECE,piece,clickable]
         self.widget_signal.emit(command)
         
     '''def set_gui_frame_off(self):

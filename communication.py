@@ -126,6 +126,10 @@ class Communication:
         self.is_connected = False
         self.handler = None
         
+    def opponent_has_connected(self):
+        print(p2p.peers)
+        return True if len(p2p.peers) > 1 else False
+        
     def send_message(self,data):
         iThread = threading.Thread(target=self.handler.send_message,args=(data,))
         iThread.daemon = True

@@ -86,14 +86,31 @@ class MainWindow(QtWidgets.QMainWindow,Ui_MainWindow,QtCore.QObject):
         if parameters[0]==GUI_CMD.MOVE_PIECE:
             self.move_piece(parameters[1],parameters[2])
             
+        if parameters[0]==GUI_CMD.EN_DIS_PIECE:
+            self.set_piece_clickable(parameters[1],parameters[2])
+            
+        if parameters[0]==GUI_CMD.AID_LABEL:
+            self.status_label.setText(parameters[1])
+            
 # Game logics
+    def set_piece_clickable(self,piece,clickable):
+        piece.setEnabled(clickable)
+
     def select_piece(self, piece):
         self.application.piece_selected = piece
         
     def move_piece(self,piece,position):
-        new_position = min(self.piece_positions, key=lambda point: math.hypot(position[1]-point[1], position[0]-point[0]))
-        piece.move(new_position[0],new_position[1])
         
+        max_distance = 15
+        
+        new_position = min(self.piece_positions, key=lambda point: math.hypot(position[1]-point[1], position[0]-point[0]))
+        
+        distance_between_points = math.dist(position, new_position)
+        print(distance_between_points)
+        
+        if distance_between_points <= max_distance:
+            piece.move(new_position[0],new_position[1])
+            self.application.is_moving_piece = False
     
     def positioning_piece(self, position):
         if self.application.piece_selected == None:
@@ -133,6 +150,7 @@ class MainWindow(QtWidgets.QMainWindow,Ui_MainWindow,QtCore.QObject):
     def init_screen(self):
         self.set_board_frame_off()
         self.host_label.setText("Aperte em Começar para iniciar.\n Deixe o IP vazio caso seja o Host")
+        self.status_label.setText('')
         self.chat_output.setReadOnly(True)
         
         for piece in self.opponent_pieces:
