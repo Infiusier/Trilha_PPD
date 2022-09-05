@@ -12,19 +12,15 @@ class Server:
     connections = []
     peers = []
     
-    def __init__(self):
+    def __init__(self,port):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         
         self.input_payload = []
         
-        self.sock.bind(('127.0.0.1',10000))
+        self.sock.bind(('127.0.0.1',port))
         self.sock.listen(1)
-        '''
-        iThread = threading.Thread(target=self.send_message)
-        iThread.daemon = True
-        iThread.start()
-        '''
+  
         print("Server running")
             
     def run(self):
@@ -85,16 +81,12 @@ class Client:
     
     peers = []
             
-    def __init__(self, address):
+    def __init__(self, address,port):
         self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.connect((address,10000))
+        self.sock.connect((address,port))
         self.input_payload = []
-        '''
-        iThread = threading.Thread(target=self.send_message, args=(sock,))
-        iThread.daemon = True
-        iThread.start()
-        '''
+      
     def run(self):
         while True:
             data = self.sock.recv(1024)
@@ -128,6 +120,8 @@ class Communication:
         self.is_host = None
         self.is_connected = False
         self.handler = None
+        self.ip = None
+        self.port = None
         
     def opponent_has_connected(self):
         return True if len(self.handler.peers) > 0 else False
@@ -154,26 +148,26 @@ class Communication:
                 print("Trying to connect...")
                 time.sleep(randint(1,5))
                 
-                for peer in p2p.peers:
-                    try:
-                        self.handler = Client(peer)
-                        self.is_host = False
-                        self.is_connected = True
-                        self.handler.run()
-                    except KeyboardInterrupt:
-                        sys.exit(0)
-                    except Exception as e:
-                        print("Client: " + str(e))
-                    
-                    try:
-                        self.handler = Server()
-                        self.is_host = True
-                        self.is_connected = True
-                        self.handler.run()
-                    except KeyboardInterrupt:
-                        sys.exit(0)
-                    except Exception as e:
-                        print("Couldn't start the server: %s" % str(e))
+                #for peer in p2p.peers:
+                try:
+                    self.handler = Client(self.ip,self.port)
+                    self.is_host = False
+                    self.is_connected = True
+                    self.handler.run()
+                except KeyboardInterrupt:
+                    sys.exit(0)
+                except Exception as e:
+                    print("Client: " + str(e))
+                
+                try:
+                    self.handler = Server(self.port)
+                    self.is_host = True
+                    self.is_connected = True
+                    self.handler.run()
+                except KeyboardInterrupt:
+                    sys.exit(0)
+                except Exception as e:
+                    print("Couldn't start the server: %s" % str(e))
                         
             except KeyboardInterrupt:
                 sys.exit(0)

@@ -517,159 +517,6 @@ border-radius: 30px;</string>
         <string/>
        </property>
       </widget>
-      <widget class="QLabel" name="opponent_2">
-       <property name="geometry">
-        <rect>
-         <x>780</x>
-         <y>630</y>
-         <width>60</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(61, 61, 61);
-border-radius: 30px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="opponent_3">
-       <property name="geometry">
-        <rect>
-         <x>780</x>
-         <y>630</y>
-         <width>60</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(61, 61, 61);
-border-radius: 30px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="opponent_4">
-       <property name="geometry">
-        <rect>
-         <x>780</x>
-         <y>620</y>
-         <width>60</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(61, 61, 61);
-border-radius: 30px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="opponent_1">
-       <property name="geometry">
-        <rect>
-         <x>780</x>
-         <y>640</y>
-         <width>60</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(61, 61, 61);
-border-radius: 30px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="opponent_5">
-       <property name="geometry">
-        <rect>
-         <x>780</x>
-         <y>620</y>
-         <width>60</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(61, 61, 61);
-border-radius: 30px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="opponent_6">
-       <property name="geometry">
-        <rect>
-         <x>780</x>
-         <y>640</y>
-         <width>60</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(61, 61, 61);
-border-radius: 30px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="opponent_7">
-       <property name="geometry">
-        <rect>
-         <x>780</x>
-         <y>630</y>
-         <width>60</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(61, 61, 61);
-border-radius: 30px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="opponent_8">
-       <property name="geometry">
-        <rect>
-         <x>770</x>
-         <y>630</y>
-         <width>60</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(61, 61, 61);
-border-radius: 30px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QLabel" name="opponent_9">
-       <property name="geometry">
-        <rect>
-         <x>780</x>
-         <y>630</y>
-         <width>60</width>
-         <height>60</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(61, 61, 61);
-border-radius: 30px;</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
       <widget class="QLabel" name="status_label">
        <property name="geometry">
         <rect>
@@ -689,6 +536,218 @@ border-radius: 30px;</string>
         <string>Sua vez</string>
        </property>
       </widget>
+      <widget class="QPushButton" name="opponent_1">
+       <property name="geometry">
+        <rect>
+         <x>730</x>
+         <y>590</y>
+         <width>60</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(61, 61, 61);
+border-radius: 30px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="opponent_2">
+       <property name="geometry">
+        <rect>
+         <x>760</x>
+         <y>620</y>
+         <width>60</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(61, 61, 61);
+border-radius: 30px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="opponent_3">
+       <property name="geometry">
+        <rect>
+         <x>770</x>
+         <y>630</y>
+         <width>60</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(61, 61, 61);
+border-radius: 30px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="opponent_4">
+       <property name="geometry">
+        <rect>
+         <x>780</x>
+         <y>640</y>
+         <width>60</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(61, 61, 61);
+border-radius: 30px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="opponent_5">
+       <property name="geometry">
+        <rect>
+         <x>770</x>
+         <y>630</y>
+         <width>60</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(61, 61, 61);
+border-radius: 30px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="opponent_6">
+       <property name="geometry">
+        <rect>
+         <x>740</x>
+         <y>620</y>
+         <width>60</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(61, 61, 61);
+border-radius: 30px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="opponent_7">
+       <property name="geometry">
+        <rect>
+         <x>760</x>
+         <y>630</y>
+         <width>60</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(61, 61, 61);
+border-radius: 30px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="opponent_8">
+       <property name="geometry">
+        <rect>
+         <x>720</x>
+         <y>610</y>
+         <width>60</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(61, 61, 61);
+border-radius: 30px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="opponent_9">
+       <property name="geometry">
+        <rect>
+         <x>750</x>
+         <y>620</y>
+         <width>60</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(61, 61, 61);
+border-radius: 30px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLabel" name="color_label">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>660</y>
+         <width>141</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Cubic</family>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(170, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>Sua Cor</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="ip_input">
+       <property name="geometry">
+        <rect>
+         <x>920</x>
+         <y>150</y>
+         <width>261</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="port_input">
+       <property name="geometry">
+        <rect>
+         <x>920</x>
+         <y>200</y>
+         <width>261</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="maximum">
+        <number>65535</number>
+       </property>
+       <property name="value">
+        <number>10000</number>
+       </property>
+      </widget>
       <zorder>chat_frame</zorder>
       <zorder>label</zorder>
       <zorder>frame_3</zorder>
@@ -703,16 +762,19 @@ border-radius: 30px;</string>
       <zorder>your_pieces_7</zorder>
       <zorder>your_pieces_8</zorder>
       <zorder>your_pieces_9</zorder>
+      <zorder>status_label</zorder>
+      <zorder>opponent_1</zorder>
       <zorder>opponent_2</zorder>
       <zorder>opponent_3</zorder>
       <zorder>opponent_4</zorder>
-      <zorder>opponent_1</zorder>
       <zorder>opponent_5</zorder>
       <zorder>opponent_6</zorder>
       <zorder>opponent_7</zorder>
       <zorder>opponent_8</zorder>
       <zorder>opponent_9</zorder>
-      <zorder>status_label</zorder>
+      <zorder>color_label</zorder>
+      <zorder>ip_input</zorder>
+      <zorder>port_input</zorder>
      </widget>
     </widget>
     <widget class="QWidget" name="page_2">
