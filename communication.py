@@ -4,111 +4,92 @@ import sys
 from random import randint
 import time
 
-class p2p:
-    peers = ['127.0.0.1']
 
-class Server:
+import grpc
+from concurrent import futures
+import game_service_pb2_grpc as pb2_grpc
+import game_service_pb2 as pb2
     
-    connections = []
-    peers = []
+class Server_provider(pb2_grpc.Game_serviceServicer):
+    def __init__(self,port):
+        print("Server running")
+        self.chats = []
+        
+    def send_chat_message(self, request: pb2.Message(),conext):
+        
+        #Server.input_payload.append(request.message)
+        self.chats.append(request)
+        return pb2.Empty()
+        
+    def get_chat_message(self, request_iterator, context):
+        lastindex = 0
+        
+        while True:
+            # Check if there are any new messages
+            while len(self.chats) > lastindex:
+                n = self.chats[lastindex]
+                lastindex += 1
+                yield n
+        
+class Server():
+    
+    input_payload = []
     
     def __init__(self,port):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.port = port
+        self.id = 'server'
+        self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        pb2_grpc.add_Game_serviceServicer_to_server(Server_provider(port), self.server)
+        self.server.add_insecure_port('[::]:' + str(port))
+        self.server.start()
+        #self.server.wait_for_termination()
         
-        self.input_payload = []
-        
-        self.sock.bind(('127.0.0.1',port))
-        self.sock.listen(1)
-  
-        print("Server running")
-            
     def run(self):
-        while True:
-            c, a = self.sock.accept()
-            cThread = threading.Thread(target = self.handler, args = (c, a))
-            cThread.daemon = True
-            cThread.start()
-            self.connections.append(c)
-            self.peers.append(a[0])
-            print(str(a[0]) + ':' + str(a[1]),"Connected")
-            self.sendPeers()
+        self.channel = grpc.insecure_channel('{}:{}'.format('localhost', self.port))
+
+        # bind the client and the server
+        self.stub = pb2_grpc.Game_serviceStub(self.channel)
         
-    def handler(self, c, a):
         while True:
-            try:
-                data = c.recv(1024)
-            except:
-                data = None
-            
-            if not data:
-                print(str(a[0]) + ':' + str(a[1]),"Disconected")
-                self.connections.remove(c)
-                self.peers.remove(a[0])
-                c.close()
-                self.sendPeers()
-                break
-            
-            print(str(data,'utf-8'))
-            self.input_payload.append(str(data,'utf-8'))
-            
-            for connection in self.connections:
-                if connection.getpeername()[1] != a[1]:
-                    connection.send(data)
+            for data in self.stub.get_chat_message(pb2.Empty()):
+                if data.id != self.id:
+                    Server.input_payload.append(str(data.message))
                 
-    def sendPeers(self):
-        p = ""
-        
-        for peer in self.peers:
-            p = p + peer + ","
-            
-        for connection in self.connections:
-            connection.send(b'\x11' + bytes(p,"utf-8"))
-            
     def send_message(self,data):
-        #while True:
-        #data = bytes(input(""), 'utf-8')
         try:
-            for connection in self.connections:
-                connection.send(bytes(data, 'utf-8'))
-                #sock.send(bytes(input(""), 'utf-8'))
+            message = pb2.Message(message=data,id = self.id)
+            self.stub.send_chat_message(message)
+            
         except KeyboardInterrupt:
             sys.exit(0)
         except Exception as e:
             print("Failed to send message: %s" % str(e))
             
+            
 class Client:
     
-    peers = []
+    input_payload = []
             
     def __init__(self, address,port):
-        self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.connect((address,port))
-        self.input_payload = []
+        self.id = 'client'
+        self.channel = grpc.insecure_channel('{}:{}'.format(address, port))
+
+        # bind the client and the server
+        self.stub = pb2_grpc.Game_serviceStub(self.channel)
       
     def run(self):
+        print("Client running")
         while True:
-            data = self.sock.recv(1024)
-            
-            if not data:
-                break
-            
-            if data[0:1] == b'\x11':
-                print("Got peers")
-                self.updatePeers(data[1:])
-                
-            else:
-                print(str(data,'utf-8'))
-                self.input_payload.append(str(data,'utf-8'))
-    def updatePeers(self,peerData):
-        p2p.peers = str(peerData,"utf-8").split(",")[:-1]
-        self.peers = p2p.peers
+            for data in self.stub.get_chat_message(pb2.Empty()):
+                if data.id != self.id:
+                    Client.input_payload.append(str(data.message))
+
         
     def send_message(self,data):
-       #while True:
         try:
-            self.sock.send(bytes(data, 'utf-8'))
+            message = pb2.Message(message=data,id = self.id)
+            self.stub.send_chat_message(message)
+            
         except KeyboardInterrupt:
             sys.exit(0)
         except Exception as e:
@@ -122,9 +103,6 @@ class Communication:
         self.handler = None
         self.ip = None
         self.port = None
-        
-    def opponent_has_connected(self):
-        return True if len(self.handler.peers) > 0 else False
         
     def send_message(self,data):
         iThread = threading.Thread(target=self.handler.send_message,args=(data,))
@@ -148,15 +126,17 @@ class Communication:
                 print("Trying to connect...")
                 time.sleep(randint(1,5))
                 
-                #for peer in p2p.peers:
                 try:
                     self.handler = Client(self.ip,self.port)
                     self.is_host = False
                     self.is_connected = True
                     self.handler.run()
+                    
                 except KeyboardInterrupt:
+                    self.is_connected = False
                     sys.exit(0)
                 except Exception as e:
+                    self.is_connected = False
                     print("Client: " + str(e))
                 
                 try:
@@ -176,4 +156,21 @@ class Communication:
                 
 if __name__ == "__main__":
     comm = Communication()
-    comm.run()
+    comm.ip = 'localhost'
+    comm.port = 50051
+    comm.start()
+    
+    while 1:
+        time.sleep(1)
+        if comm.is_connected == False:
+            continue
+        
+        if comm.has_message() == True:
+            print(comm.get_message())
+        
+        if comm.is_host == False:
+            comm.send_message("OI")
+            
+        else:
+            comm.send_message("OLA")
+        

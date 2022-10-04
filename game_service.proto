@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package game_service;
+
+message Empty {}
+
+service Game_service{
+ 
+ rpc send_chat_message(Message) returns (Empty) {}
+ rpc get_chat_message (Empty) returns (stream Message) {}
+
+}
+
+message Message{
+ string message = 1;
+ string id = 2;
+}

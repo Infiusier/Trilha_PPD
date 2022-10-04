@@ -35,6 +35,7 @@ class Application():
         self.ip = None
         self.port = None
         self.give_up = False
+        self.opponent_has_connected = False
         
         self.state_functions = {States.JOIN_GAME : self.join_game,
                                 States.WAITING_OPPONENT : self.waiting_opponent,
@@ -83,6 +84,11 @@ class Application():
     def give_up_command(self):
         self.comm_driver.send_message(self.parse_give_up_command())
         
+    def has_connected_command(self):
+        json_payload = {'msg_type' : 'has connected',
+                        'payload' : ''}
+        self.comm_driver.send_message(json.dumps(json_payload))
+        
     def remove_piece_command(self,piece):
         self.comm_driver.send_message(self.parse_remove_piece_command(piece))
         
@@ -91,6 +97,7 @@ class Application():
             return
         
         if self.comm_driver.is_host == True:
+            
             self.gui_controller.set_status_message("Você é o Host da Partida.")
             self.gui_controller.switch_piece_colors()
             self.my_turn = True
@@ -104,7 +111,10 @@ class Application():
         
     def waiting_opponent(self):
         
-        if self.comm_driver.opponent_has_connected() == False:
+        self.has_connected_command()
+        
+        if self.opponent_has_connected == False:
+            time.sleep(1)
             return
         
         self.state = States.PREPARE_PIECES_GUI
@@ -240,6 +250,9 @@ class Application():
         elif payload_json['msg_type'] == 'remove piece':
             self.gui_controller.move_piece(payload_json['payload'], -1)
             
+        elif payload_json['msg_type'] == 'has connected':
+            self.opponent_has_connected = True
+            
         elif payload_json['msg_type'] == 'give up':
             self.gui_controller.set_aid_label_message("Oponente Desistiu")
             self.gui_controller.set_status_message("Oponente Desistiu")
@@ -266,6 +279,9 @@ class Application():
         self.comm_driver.ip = self.ip
         self.comm_driver.port = self.port
         self.comm_driver.start()
+        
+        time.sleep(10)
+        
         self.run_game()
         
         self.gui_controller.set_board_gui_off()
